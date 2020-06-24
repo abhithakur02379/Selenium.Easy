@@ -19,7 +19,6 @@ public class ReadConfigProperty {
     static List<String> contentFromConfigFile = new ArrayList<>();
     static List<String> listOfSuiteNames = new ArrayList<>();
     static Map<String, String> map = new HashMap<>();
-    public static String configpath;
     Properties properties = null;
 
     public String getConfigValues(String elementValue) {
