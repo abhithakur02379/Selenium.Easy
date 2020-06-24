@@ -28,9 +28,9 @@ public class ExtentReport {
     @BeforeTest
     public void setExtent()
     {
-        htmlReporter = new ExtentHtmlReporter(System.getProperty("user.dir") + "\\test-output\\ParaBank_Report.html");
-        htmlReporter.config().setDocumentTitle("ParaBank Automation Test Report");
-        htmlReporter.config().setReportName("ParaBank Functionl Report");
+        htmlReporter = new ExtentHtmlReporter(System.getProperty("user.dir") + "\\test-output\\SeleniumEasy_Report.html");
+        htmlReporter.config().setDocumentTitle("Selenium Easy Test Automation Report");
+        htmlReporter.config().setReportName("*********  Functionl Test Report   *********");
         htmlReporter.getStartTime();
         htmlReporter.getEndTime();
         htmlReporter.config().setTheme(Theme.DARK);
@@ -63,8 +63,8 @@ public class ExtentReport {
         }
         else if (result.getStatus() == ITestResult.FAILURE)
         {
-            extentTest.log(Status.FAIL, result.getName() + " is FAILED");     //add name in extent report
-            extentTest.log(Status.FAIL, result.getThrowable() + " is FAILED");    //add error/exception in extent report
+            extentTest.log(Status.FAIL, result.getName() + " is FAILED");
+            extentTest.log(Status.FAIL, result.getThrowable() + " is FAILED");
 //            String screenshotPath = getScreenshot(result.getName());
 //            Selenide.screenshot(System.getProperty("user.dir") + "\\test-output\\Screenshots");
         }

@@ -1,34 +1,37 @@
 package tests;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Configuration;
 import org.openqa.selenium.By;
-import org.testng.annotations.BeforeTest;
-
-import java.util.Properties;
+import org.testng.annotations.Test;
+import testutilities.ReadConfigProperty;
 
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
 
+
 public class SetUpTests {
 
 
-    public static final Properties config = new Properties();
+//    public static final Properties config = new Properties();
+    static ReadConfigProperty config = new ReadConfigProperty();
 
-    @BeforeTest(description = "Test to verify application launched successfully")
-    public void launch_ParaBank () throws Exception {
+//    public void intialize() throws IOException {
+//        config.load(SetUpTests.class.getClassLoader().getResourceAsStream("config.properties"));
+//    }
 
-        config.load(SetUpTests.class.getClassLoader().getResourceAsStream("config.properties"));
-        System.setProperty("webdriver.edge.driver", System.getProperty("user.dir") + "\\src\\test\\resources\\Drivers\\msedgedriver.exe");
-        System.setProperty("selenide.browser", "Edge");
-        Thread.sleep(1000);
+    @Test
+    public void launch_Application () throws Exception {
+
+//        config.load(SetUpTests.class.getClassLoader().getResourceAsStream("config.properties"));
+        Configuration.browser = "Edge";
         Configuration.startMaximized = true;
         Configuration.reportsFolder = System.getProperty("user.dir") + "\\test-output";
-        open(config.getProperty("baseURI"));
-        Thread.sleep(1000);
-        $(By.xpath("//a[contains(text(),'ParaBank')]")).shouldBe(Condition.visible);
+        open(config.getConfigValues("baseURI"));
+        Configuration.timeout = 2000;
+        if($(By.xpath("//*[contains(text(),'Learn selenium to automate with Seleniumeasy.com')]")).exists())
+        {
+            $(By.xpath("//*[contains(text(),'No, thanks!')]")).click();
+        }
     }
-
-
 
 }
