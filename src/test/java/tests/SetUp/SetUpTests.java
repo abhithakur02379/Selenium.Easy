@@ -1,4 +1,4 @@
-package SetUp;
+package tests.SetUp;
 
 import com.codeborne.selenide.Configuration;
 import org.openqa.selenium.By;
