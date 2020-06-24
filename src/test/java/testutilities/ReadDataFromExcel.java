@@ -1,125 +1,198 @@
 package testutilities;
 
-import org.apache.poi.EncryptedDocumentException;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.awt.*;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
-public class ReadDataFromExcel {
+public class ReadDataFromExcel
+{
+    public FileInputStream fis;
+    public static XSSFWorkbook workbook = null;
+    public static XSSFSheet sheet = null;
+    public static XSSFRow row = null;
+    public static XSSFCell cell = null;
 
+    public ReadDataFromExcel(String xlFilePath) throws Exception
+    {
 
-    public void readExcel(String filePath, String fileName, String sheetName) throws IOException {
+        fis = new FileInputStream(xlFilePath);
+        workbook = new XSSFWorkbook(fis);
+        fis.close();
+    }
 
+    public String getCellData(String sheetName, String colName, int rowNum)
+    {
+        int colNum = 0;
         try
         {
-            int col;
-            //Create an object of File class to open xlsx file
-            File file = new File(filePath +"\\"+ fileName);
+            colNum = -1;
 
-            //Create an object of FileInputStream class to read excel file
-            FileInputStream inputStream = new FileInputStream(file);
-
-            Workbook ParaBankWorkbook = null;
-
-            //Find the file extension by splitting file name in substring  and getting only extension name
-            String fileExtensionName = fileName.substring(fileName.indexOf("."));
-
-            //Check condition if the file is xlsx file or xls file
-            if (fileExtensionName.equals(".xlsx"))
+            sheet = workbook.getSheet(sheetName);
+            row = sheet.getRow(0);
+            for (int i = 0; i < row.getLastCellNum(); i++)
             {
-                ParaBankWorkbook = new XSSFWorkbook(inputStream);
-            }
-            else if (fileExtensionName.equals(".xls"))
-            {
-                ParaBankWorkbook = new HSSFWorkbook(inputStream);
+                if (row.getCell(i).getStringCellValue().trim().equals(colName.trim()))
+                    colNum = i;
             }
 
-            //Read sheet inside the workbook by its name
-            assert ParaBankWorkbook != null;
-            Sheet ParaBankSheet = ParaBankWorkbook.getSheet(sheetName);
+            row = sheet.getRow(rowNum - 1);
+            cell = row.getCell(colNum);
 
-            //Find number of rows in excel file
-            int rowCount = ParaBankSheet.getLastRowNum() - ParaBankSheet.getFirstRowNum();
-
-            //Create a loop over all the rows of excel file to read it
-            for (int i=0; i<=rowCount; i++)
+            if (cell.getCellType() == CellType.STRING)
             {
-                Row row = ParaBankSheet.getRow(i);
-                //System.out.println(row.getLastCellNum());
-                col = row.getLastCellNum();
-                String[] input = new String[col];
-                //Create a loop to print cell values in a row
-                //System.out.println(row.getCell(1).getStringCellValue());
-                //System.out.println(row.getCell(0).getStringCellValue());
-                for (int j=0; j<row.getLastCellNum(); j++)
+                return cell.getStringCellValue();
+            }
+            else if (cell.getCellType() == CellType.NUMERIC || cell.getCellType() == CellType.FORMULA)
+            {
+                String cellValue = String.valueOf(cell.getNumericCellValue());
+                if (DateUtil.isCellDateFormatted(cell))
                 {
-                    //Print Excel data in console
-                    //System.out.println(row.getCell(j).getStringCellValue()+"|| ");
-                    input[j] = new DataFormatter().formatCellValue(row.getCell(j));
-                    //System.out.println(input[j]);
+                    DateFormat df = new SimpleDateFormat("dd/MM/yy");
+                    Date date = cell.getDateCellValue();
+                    cellValue = df.format(date);
                 }
-                System.out.println();
+                return cellValue;
+            }
+            else if (cell.getCellType() == CellType.BLANK)
+            {
+                return "";
+            }
+            else
+            {
+                return String.valueOf(cell.getBooleanCellValue());
             }
         }
         catch (Exception e)
         {
             e.printStackTrace();
+            return "row " + rowNum + " or column " + colNum + " does not exist  in Excel";
         }
-
     }
 
-    public void Initialze() throws IOException
-    {
-        //Create an object of ReadGuru99ExcelFile class
-        //ReadDataFromExcel objExcel = new ReadDataFromExcel();
-        //Prepare the path of excel file
-        String filePath = System.getProperty("user.dir") + "\\src\\test\\resources\\TestData\\ParaBank_TestData.xlsx";
 
-        readExcel(filePath, "ParaBank_TestData.xlsx", "LoginTests");
+////This method is to set the File path and to open the Excel file, Pass Excel Path and Sheetname as Arguments to this method
+//    public static void setExcelFile(String Path,String SheetName) throws Exception
+//    {
+//        try
+//        {
+//            // Open the Excel file
+//            FileInputStream ExcelFile = new FileInputStream(Path);
+//            // Access the required test data sheet
+//            workbook = new XSSFWorkbook(ExcelFile);
+//            sheet = workbook.getSheet(SheetName);
+//        }
+//        catch (Exception e)
+//        {
+//            throw (e);
+//        }
+//
+//    }
+//
+//    public static Object[][] getTableArray(String FilePath, String SheetName, int iTestCaseRow)    throws Exception
+//    {
+//        String[][] tabArray = null;
+//        try{
+//            int startCol = 1;
+//            int ci=0,cj=0;
+//            int totalRows = 1;
+//            int totalCols = 2;
+//
+//            tabArray=new String[totalRows][totalCols];
+//            for (int j=startCol;j<=totalCols;j++, cj++)
+//            {
+//                tabArray[ci][cj]=getCellData(iTestCaseRow,j);
+//                System.out.println(tabArray[ci][cj]);
+//            }
+//
+//        }
+//        catch (IOException e)
+//        {
+//            System.out.println("Could not read the Excel sheet");
+//            e.printStackTrace();
+//        }
+//        return(tabArray);
+//    }
+//
+//
+//    //This method is to read the test data from the Excel cell, in this we are passing parameters as Row num and Col num
+//    public static String getCellData(int RowNum, int ColNum) throws Exception
+//    {
+//        try
+//        {
+//            XSSFCell Cell = null;
+//            XSSFSheet sheet = null;
+//            Cell = sheet.getRow(RowNum).getCell(ColNum);
+//            return Cell.getStringCellValue();
+//        }
+//        catch (Exception e)
+//        {
+//            return"";
+//        }
+//    }
+//
+//
+//    public static String getTestCaseName(String sTestCase)throws Exception
+//    {
+//        String value = sTestCase;
+//        try
+//        {
+//            int posi = value.indexOf("@");
+//            value = value.substring(0, posi);
+//            posi = value.lastIndexOf(".");
+//            value = value.substring(posi + 1);
+//            return value;
+//        }
+//        catch (Exception e)
+//        {
+//            throw (e);
+//        }
+//    }
+//
+//
+//    public static int getRowContains(String sTestCaseName, int colNum) throws Exception
+//    {
+//        int i;
+//        try
+//        {
+//            int rowCount = getRowUsed();
+//            for ( i=0 ; i<rowCount; i++){
+//                if  (getCellData(i,colNum).equalsIgnoreCase(sTestCaseName))
+//                {
+//                    break;
+//                }
+//            }
+//            return i;
+//        }
+//        catch (Exception e)
+//        {
+//            throw(e);
+//        }
+//    }
+//
+//
+//    public static int getRowUsed() throws Exception
+//    {
+//        try
+//        {
+//            int RowCount = sheet.getLastRowNum();
+//            return RowCount;
+//        }
+//        catch (Exception e)
+//        {
+//            System.out.println(e.getMessage());
+//            throw (e);
+//        }
+//    }
 
-    }
-
-    public static String Data(String ColumnName) throws FileNotFoundException, IOException, InterruptedException, AWTException, EncryptedDocumentException, InvalidFormatException
-    {
-        //CommonMethods.ReadTestData("GSKSearch");
-
-        String SheetName = "LoginTests";
-        File file = new File(System.getProperty("user.dir") + "\\src\\test\\resources\\TestData\\ParaBank_TestData.xlsx");
-        FileInputStream fis = new FileInputStream(file);
-
-        Workbook wBook = WorkbookFactory.create(fis);
-
-        Sheet sheet = wBook.getSheet(SheetName);
-        // it will take value from first row
-        Row row = sheet.getRow(0);
-        //it will give you count of row which is used or filled
-        short lastcolumnused = row.getLastCellNum();
-
-        int colnum = 0;
-        for (int i = 0; i < lastcolumnused; i++)
-        {
-            if (row.getCell(i).getStringCellValue().equalsIgnoreCase(ColumnName))
-            {
-                colnum = i;
-                break;
-            }
-        }
-
-        // it will take value from Second row
-        row = sheet.getRow(1);
-        Cell column = row.getCell(colnum);
-
-        return column.getStringCellValue();
-
-    }
 
 
 

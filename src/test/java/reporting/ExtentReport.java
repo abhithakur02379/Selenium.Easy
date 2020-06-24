@@ -5,7 +5,6 @@ import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.Status;
 import com.aventstack.extentreports.reporter.ExtentHtmlReporter;
 import com.aventstack.extentreports.reporter.configuration.Theme;
-import com.codeborne.selenide.Selenide;
 import org.apache.commons.io.FileUtils;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
@@ -29,10 +28,13 @@ public class ExtentReport {
     @BeforeTest
     public void setExtent()
     {
-        htmlReporter = new ExtentHtmlReporter(System.getProperty("user.dir") + "\\test-output\\ParaBank_Report.html");
-        htmlReporter.config().setDocumentTitle("Automation Test Report");
-        htmlReporter.config().setReportName("Functionl Report");
+        htmlReporter = new ExtentHtmlReporter(System.getProperty("user.dir") + "\\test-output\\SeleniumEasy_Report.html");
+        htmlReporter.config().setDocumentTitle("Selenium Easy Test Automation Report");
+        htmlReporter.config().setReportName("*********  Functionl Test Report   *********");
+        htmlReporter.getStartTime();
+        htmlReporter.getEndTime();
         htmlReporter.config().setTheme(Theme.DARK);
+        htmlReporter.config().getTimeStampFormat();
 
         extentReports = new ExtentReports();
         extentReports.attachReporter(htmlReporter);
@@ -49,22 +51,22 @@ public class ExtentReport {
     }
 
     @AfterMethod
-    public void tearDown(ITestResult result) throws IOException {
+    public void tearDown(ITestResult result) {
 
         if (result.getStatus() == ITestResult.SUCCESS)
         {
-            extentTest.log(Status.PASS, "Test Case " + result.getName() + " is PASSED");
+            extentTest.log(Status.PASS, result.getName() + " is PASSED");
         }
         else if (result.getStatus() == ITestResult.SKIP)
         {
-            extentTest.log(Status.SKIP, "Test Case " + result.getName() + " is SKIPPED");
+            extentTest.log(Status.SKIP, result.getName() + " is SKIPPED");
         }
         else if (result.getStatus() == ITestResult.FAILURE)
         {
-            extentTest.log(Status.FAIL, "Test Case " + result.getName() + " is FAILED");     //add name in extent report
-            extentTest.log(Status.FAIL, "Test Case " + result.getThrowable() + " is FAILED");    //add error/exception in extent report
-            String screenshotPath = getScreenshot(result.getName());
-            Selenide.screenshot(screenshotPath);
+            extentTest.log(Status.FAIL, result.getName() + " is FAILED");
+            extentTest.log(Status.FAIL, result.getThrowable() + " is FAILED");
+//            String screenshotPath = getScreenshot(result.getName());
+//            Selenide.screenshot(System.getProperty("user.dir") + "\\test-output\\Screenshots");
         }
     }
 

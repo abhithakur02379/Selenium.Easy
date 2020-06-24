@@ -1,95 +1,77 @@
 package tests;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.testng.ScreenShooter;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.openqa.selenium.By;
-import org.testng.Assert;
-import org.testng.Reporter;
 import org.testng.annotations.Listeners;
 import org.testng.annotations.Test;
 import reporting.ExtentReport;
-
-import java.awt.*;
-import java.io.IOException;
+import testutilities.ReadDataFromExcel;
 
 import static com.codeborne.selenide.Selenide.$;
-import static testutilities.ReadDataFromExcel.Data;
 
 
 @Listeners({ScreenShooter.class})
 public class LoginTests extends ExtentReport {
 
-
     SetUpTests setup = new SetUpTests();
+    ReadDataFromExcel rdfe;
+    {
+        try
+        {
+            rdfe = new ReadDataFromExcel(System.getProperty("user.dir") + "\\src\\test\\resources\\TestData\\ParaBank_TestData.xlsx");
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
 
 
     @Test(priority = 3, description = "Customer login with Valid Credentials")
-    public void verifyUserLoginwithValidCredentials() throws InterruptedException, AWTException, InvalidFormatException, IOException {
-
+    public void verifyUserLoginwithValidCredentials() throws Exception {
 
         extentTest = extentReports.createTest("verifyUserLoginwithValidCredentials");
 
         setup.launch_ParaBank();
 
-        if ($(By.xpath("//*[contains(text(),'Customer Login')]")).exists())
-        {
-            $(By.xpath("//*[contains(@name,'username')]")).val(Data("Username"));
-            $(By.xpath("//*[contains(@name,'password')]")).val(Data("Password")).pressEnter();
-            Thread.sleep(2000);
-            boolean status = $(By.xpath("//*[contains(text(),'Log Out')]")).isDisplayed();
-            Assert.assertTrue(status);
-        }
+        $(By.xpath("//*[contains(@name,'username')]")).val(rdfe.getCellData("LoginTests","Username",2));
+        $(By.xpath("//*[contains(@name,'password')]")).val(rdfe.getCellData("LoginTests","Password",2)).pressEnter();
+        Thread.sleep(2000);
+        $(By.xpath("//*[contains(text(),'Log Out')]")).shouldBe(Condition.visible);
+
     }
 
 
     @Test(priority = 1, description = "Customer login with Invalid Credentials")
-    public void verifyUserLoginwithInvalidCredentials() throws InterruptedException, AWTException, InvalidFormatException, IOException {
+    public void verifyUserLoginwithInvalidCredentials() throws Exception {
+
+        extentTest = extentReports.createTest("verifyUserLoginwithInvalidCredentials");
 
         setup.launch_ParaBank();
 
-        if ($(By.xpath("//*[contains(text(),'Customer Login')]")).exists()) {
-            $(By.xpath("//*[contains(@name,'username')]")).val(Data("Username"));
-            $(By.xpath("//*[contains(@name,'password')]")).val(Data("Password")).pressEnter();
-            Thread.sleep(1000);
+        $(By.xpath("//*[contains(@name,'username')]")).val(rdfe.getCellData("LoginTests","Username",3));
+        $(By.xpath("//*[contains(@name,'password')]")).val(rdfe.getCellData("LoginTests","Password",3)).pressEnter();
+        Thread.sleep(1000);
+        $(By.xpath("//*[contains(text(),'The username and password could not be verified.')]")).shouldBe(Condition.visible);
 
-            if ($(By.xpath("//*[contains(text(),'The username and password could not be verified.')]")).isDisplayed())
-            {
-                Assert.assertEquals("User Login NOT Successfull", "User Login NOT Successfull");
-
-                Reporter.log("User Login NOT Successfull");
-            }
-            else
-            {
-                Assert.assertEquals("User Login Successfull", "User Login Successfull");
-                Reporter.log("User Login Successfull");
-            }
-        }
     }
 
 
     @Test(priority = 2, description = "Customer login with Empty Credentials")
-    public void verifyUserLoginwithEmptyCredentials() throws InterruptedException, AWTException, InvalidFormatException, IOException {
+    public void verifyUserLoginwithEmptyCredentials() throws Exception {
+
+        extentTest = extentReports.createTest("verifyUserLoginwithEmptyCredentials");
 
         setup.launch_ParaBank();
 
-        if ($(By.xpath("//*[contains(text(),'Customer Login')]")).exists())
-        {
-            $(By.xpath("//*[contains(@name,'username')]")).val(Data("Username"));
-            $(By.xpath("//*[contains(@name,'password')]")).val(Data("Password")).pressEnter();
-            Thread.sleep(1000);
-            if ($(By.xpath("//*[contains(text(),'Please enter a username and password.')]")).isDisplayed())
-            {
-                Assert.assertEquals("User Login NOT Successfull", "User Login NOT Successfull");
-                Reporter.log("User Login NOT Successfull");
-            }
-            else
-            {
-                Assert.assertEquals("User Login Successfull", "User Login Successfull");
-                Reporter.log("User Login Successfull");
-            }
-        }
-    }
+        $(By.xpath("//*[contains(@name,'username')]")).val(rdfe.getCellData("LoginTests","Username",4));
+        $(By.xpath("//*[contains(@name,'password')]")).val(rdfe.getCellData("LoginTests","Password",4)).pressEnter();
+        Thread.sleep(1000);
+        $(By.xpath("//*[contains(text(),'Please enter a username and password.')]")).shouldBe(Condition.visible);
 
+    }
 
 
 
